@@ -1,3 +1,5 @@
+'use strict';
+
 var numSelects = 25;
 var countSelects = 0;
 
