@@ -1,6 +1,7 @@
 header {
   width: 960px;
   margin: 0 auto;
+  margin-bottom: 100px;
   text-align: center;
 }
 
@@ -30,6 +31,24 @@ main p {
   color: #444;
 }
 
+ul:first-child{
+  margin-left: 80px;
+  margin-right: 10px;
+  text-align: right;
+}
+
+ul {
+  width: 300px;
+  float: left;
+  text-align: left;
+}
+
+li {
+  font-size: 18px;
+  color: #444;
+  margin: 20px 0;
+}
+
 .focus_choice {  
   width: 250px;
   height: 250px;
@@ -38,6 +57,7 @@ main p {
 }
 
 footer {
+  clear: both;
   width: 960px;
   margin: 100px auto;
   text-align: center;
