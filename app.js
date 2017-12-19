@@ -77,7 +77,6 @@ function sortChoicesByRatio() {
         FocusChoice.choices[i] = FocusChoice.choices[i+1];
         FocusChoice.choices[i+1] = temp;
         flag = true;
-        console.log('sorted');
       }
     }
   } while (flag)
@@ -90,15 +89,19 @@ function renderResults() {
   sortChoicesByRatio();
   var mainEl = document.getElementsByTagName('main')[0];
   mainEl.innerHTML = '';
-  var ulEl = document.createElement('ul');
+  var ulElLeft = document.createElement('ul');
+  var ulElRight = document.createElement('ul');
   for (var i = 0; i < FocusChoice.choices.length; ++i) {
-    var liEl = document.createElement('li');
-    liEl.textContent = FocusChoice.choices[i].name + ': ' + FocusChoice.choices[i].numClicks + ' votes out of ' + FocusChoice.choices[i].numShown + ' opportunities. (' + FocusChoice.choices[i].ratio.toFixed(2)*100 + '%)';
-    ulEl.appendChild(liEl);
+    var liElLeft = document.createElement('li');
+    liElLeft.textContent = FocusChoice.choices[i].name + ': ';
+    ulElLeft.appendChild(liElLeft);
+    var liElRight = document.createElement('li');
+    liElRight.textContent = FocusChoice.choices[i].numClicks + ' votes out of ' + FocusChoice.choices[i].numShown + ' opportunities. (' + Math.round(FocusChoice.choices[i].ratio*100) + '%)';
+    ulElRight.appendChild(liElRight);
   }
  
-  mainEl.appendChild(ulEl);
-
+  mainEl.appendChild(ulElLeft);
+  mainEl.appendChild(ulElRight);
 }
 
 var arrImgEl = document.getElementsByClassName('focus_choice');
