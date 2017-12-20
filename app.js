@@ -2,6 +2,7 @@
 
 var numSelects = 25;
 var countSelects = 0;
+if (localStorage.countSelects) countSelects = parseInt(localStorage.countSelects);
 
 var fcPaths = ['img/bag.jpg', 'img/banana.jpg', 'img/bathroom.jpg', 'img/boots.jpg',
                'img/breakfast.jpg', 'img/bubblegum.jpg', 'img/chair.jpg', 'img/cthulhu.jpg',
@@ -10,6 +11,9 @@ var fcPaths = ['img/bag.jpg', 'img/banana.jpg', 'img/bathroom.jpg', 'img/boots.j
                'img/unicorn.jpg', 'img/usb.gif', 'img/water-can.jpg', 'img/wine-glass.jpg']
 
 FocusChoice.choices = [];
+if (localStorage.FocusChoiceChoices) FocusChoice.choices = JSON.parse(localStorage.FocusChoiceChoices);
+else loadChoices();
+
 function FocusChoice(path) {
   this.path = path;
   this.numClicks = 0;
@@ -57,10 +61,11 @@ function selectChoice(e) {
   ++countSelects;
   var choiceIndex = e.target.getAttribute('alt');
   ++FocusChoice.choices[choiceIndex].numClicks;
+  localStorage.FocusChoiceChoices = JSON.stringify(FocusChoice.choices);
+  localStorage.countSelects = countSelects;
   renderChoices();
   if (countSelects === numSelects - 1) {
     calcRatios();
-    localStorage.setItem('FocusChoice.choices',JSON.stringify(FocusChoice.choices));
     renderResults();
   }
 }
@@ -146,7 +151,7 @@ function renderCharts(chartType) {
   //I have commented this out because it's not working right for unknown reasons >:|
   //for (var i = 0; i < chartBtns.length; ++i) {
   //  console.log(chartBtns[i].getAttribute('id'));
-  //  //why does this log 'button_line' every time? -> chartBtns[i].addEventListener('click', function() {console.log(chartBtns[i].getAttribute('id'));});  
+  //  chartBtns[i].addEventListener('click', function() {console.log(chartBtns[i].getAttribute('id'));});  
   //}
 
   //load arrays with results
@@ -172,8 +177,8 @@ function renderCharts(chartType) {
 }
 
 function init() {
-  if (localStorage.getItem('FocusChoice.choices')) {
-    FocusChoice.choices = JSON.parse(localStorage.getItem('FocusChoice.choices'));
+  if (countSelects === numSelects - 1) {
+    calcRatios();
     renderResults();
     return;
   }
@@ -181,7 +186,6 @@ function init() {
   for (var i = 0; i < arrImgEl.length; ++i) 
     arrImgEl[i].addEventListener('click',selectChoice);
 
-  loadChoices();
   renderChoices();
 }
 
