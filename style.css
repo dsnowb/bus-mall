@@ -31,14 +31,15 @@ main p {
   color: #444;
 }
 
-ul:first-child{
-  margin-left: 80px;
+ul:nth-child(2){
+  width: 320px;
+  margin-left: 60px;
   margin-right: 10px;
   text-align: right;
 }
 
 ul {
-  width: 300px;
+  width: 400px;
   float: left;
   text-align: left;
 }
@@ -61,4 +62,22 @@ footer {
   width: 960px;
   margin: 100px auto;
   text-align: center;
+}
+
+.chart_btn {
+  display: inline-block;
+  margin: 20px 50px;
+  width: 50px;
+  height: 20px;
+  padding: 5px 20px 0 20px;
+  background-color: #fff;
+  border: 1px solid black;
+  border-radius: 3px;
+  font-family: Helvetica;
+  cursor: pointer;
+}
+
+.chart_btn:hover {
+  background-color: #444;
+  color: #fff;
 }

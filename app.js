@@ -58,12 +58,17 @@ function selectChoice(e) {
   var choiceIndex = e.target.getAttribute('alt');
   ++FocusChoice.choices[choiceIndex].numClicks;
   renderChoices();
-  if (countSelects === numSelects - 1) renderResults();
+  if (countSelects === numSelects - 1) {
+    calcRatios();
+    localStorage.setItem('FocusChoice.choices',JSON.stringify(FocusChoice.choices));
+    renderResults();
+  }
 }
 
 function calcRatios() {
   for (var i = 0; i < FocusChoice.choices.length; ++i)
     !FocusChoice.choices[i].numShown ? FocusChoice.choices[i].ratio = 0 : FocusChoice.choices[i].ratio = FocusChoice.choices[i].numClicks / FocusChoice.choices[i].numShown;
+  sortChoicesByRatio();
 }
 
 function sortChoicesByRatio() {
@@ -84,13 +89,10 @@ function sortChoicesByRatio() {
   } while (flag)
 }
 
-
-
 function renderResults() {
-  calcRatios();
-  sortChoicesByRatio();
   var mainEl = document.getElementsByTagName('main')[0];
-  mainEl.innerHTML = '';
+  mainEl.innerHTML = '<section id="charts"></section>'; 
+
   var ulElLeft = document.createElement('ul');
   var ulElRight = document.createElement('ul');
   for (var i = 0; i < FocusChoice.choices.length; ++i) {
@@ -104,11 +106,84 @@ function renderResults() {
  
   mainEl.appendChild(ulElLeft);
   mainEl.appendChild(ulElRight);
+  renderCharts('bar');
 }
 
-var arrImgEl = document.getElementsByClassName('focus_choice');
-for (var i = 0; i < arrImgEl.length; ++i) 
-  arrImgEl[i].addEventListener('click',selectChoice);
+function renderChart(canvasId, chartType, arrLabels, arrData, dataLabel)  {
+  //make some chart colors
+  var bgColors = [];
+  var bdColors = [];
+  for (var i = 0; i < arrData.length; ++i) {
+    bgColors.push('rgb(' + Math.floor(Math.random()*256) + ',' + Math.floor(Math.random()*256) + ',' + Math.floor(Math.random()*256) + ')');
+    bdColors.push('#000000');
+  }
 
-loadChoices();
-renderChoices();
+  //render chart
+  var ctx = document.getElementById(canvasId).getContext('2d');
+  var chart = new Chart(ctx, {
+    type: chartType,
+    data: {
+      labels: arrLabels,
+      datasets: [{
+        label: dataLabel,
+        data: arrData,
+        backgroundColor: bgColors,
+        borderColor: bdColors,
+        borderWidth: 1
+      }]
+    },
+    options: {}
+  });
+}
+
+function renderCharts(chartType) {
+  var sectionEl = document.getElementById('charts');
+  sectionEl.innerHTML = '<div class="chart_btn" id="button_bar">Bars</div><div class="chart_btn" id="button_pie">Pie</div><div class="chart_btn" id="button_line">Line</div>';
+  var chartBtns = document.getElementsByClassName('chart_btn');
+  chartBtns[0].addEventListener('click', function() { renderCharts(chartBtns[0].getAttribute('id').split('_')[1]); });  
+  chartBtns[1].addEventListener('click', function() { renderCharts(chartBtns[1].getAttribute('id').split('_')[1]); });  
+  chartBtns[2].addEventListener('click', function() { renderCharts(chartBtns[2].getAttribute('id').split('_')[1]); });  
+  //I have commented this out because it's not working right for unknown reasons >:|
+  //for (var i = 0; i < chartBtns.length; ++i) {
+  //  console.log(chartBtns[i].getAttribute('id'));
+  //  //why does this log 'button_line' every time? -> chartBtns[i].addEventListener('click', function() {console.log(chartBtns[i].getAttribute('id'));});  
+  //}
+
+  //load arrays with results
+  var names = [];
+  var totals = [];
+  var percents = [];
+  for (var i = 0; i < FocusChoice.choices.length; ++i) {
+    names.push(FocusChoice.choices[i].name);
+    totals.push(FocusChoice.choices[i].numClicks);  
+    if (FocusChoice.choices[i].numShown) percents.push(Math.round(100*FocusChoice.choices[i].ratio));
+  }
+
+  var numCharts = 2;
+  var chartsEl = document.getElementById('charts');
+  for (var i = 0; i < numCharts; ++i) {
+    var canvasEl = document.createElement('canvas');
+    canvasEl.setAttribute('id','chart_' + i);
+    chartsEl.appendChild(canvasEl);
+  }
+
+  renderChart('chart_0',chartType,names,totals,'Absolute number of clicks');
+  renderChart('chart_1',chartType,names,percents,'Percentage clicked when shown');
+}
+
+function init() {
+  if (localStorage.getItem('FocusChoice.choices')) {
+    FocusChoice.choices = JSON.parse(localStorage.getItem('FocusChoice.choices'));
+    renderResults();
+    return;
+  }
+  var arrImgEl = document.getElementsByClassName('focus_choice');
+  for (var i = 0; i < arrImgEl.length; ++i) 
+    arrImgEl[i].addEventListener('click',selectChoice);
+
+  loadChoices();
+  renderChoices();
+}
+
+init();
+
