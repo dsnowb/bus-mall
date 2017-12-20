@@ -2,7 +2,6 @@
 
 var numSelects = 25;
 var countSelects = 0;
-if (localStorage.countSelects) countSelects = parseInt(localStorage.countSelects);
 
 var fcPaths = ['img/bag.jpg', 'img/banana.jpg', 'img/bathroom.jpg', 'img/boots.jpg',
                'img/breakfast.jpg', 'img/bubblegum.jpg', 'img/chair.jpg', 'img/cthulhu.jpg',
@@ -11,8 +10,35 @@ var fcPaths = ['img/bag.jpg', 'img/banana.jpg', 'img/bathroom.jpg', 'img/boots.j
                'img/unicorn.jpg', 'img/usb.gif', 'img/water-can.jpg', 'img/wine-glass.jpg']
 
 FocusChoice.choices = [];
-if (localStorage.FocusChoiceChoices) FocusChoice.choices = JSON.parse(localStorage.FocusChoiceChoices);
-else loadChoices();
+loadChoices();
+if (localStorage.FocusChoiceChoices) askStartOver();
+else init();
+
+function askStartOver() {
+  var body = document.querySelector('body');
+  var overlay = document.createElement('div');
+  var challenge = document.createElement('p');
+  var yBtn = document.createElement('div');
+  var nBtn = document.createElement('div');
+  overlay.setAttribute('id', 'overlay');
+  yBtn.setAttribute('class', 'overlay_btn');
+  nBtn.setAttribute('class', 'overlay_btn');
+  challenge.textContent = 'It appears you\'ve already entered some info...';
+  yBtn.textContent = 'Start Over';
+  nBtn.textContent = 'Continue';
+  nBtn.addEventListener('click',function() { loadPrior(); document.querySelector('body').removeChild(document.getElementById('overlay')); init();});
+  yBtn.addEventListener('click',function() { document.querySelector('body').removeChild(document.getElementById('overlay')); init();});
+  
+  overlay.appendChild(challenge);
+  overlay.appendChild(yBtn);
+  overlay.appendChild(nBtn);
+  body.appendChild(overlay);
+}
+
+function loadPrior() {
+  countSelects = parseInt(localStorage.countSelects);
+  FocusChoice.choices = JSON.parse(localStorage.FocusChoiceChoices);
+}
 
 function FocusChoice(path) {
   this.path = path;
@@ -64,7 +90,7 @@ function selectChoice(e) {
   localStorage.FocusChoiceChoices = JSON.stringify(FocusChoice.choices);
   localStorage.countSelects = countSelects;
   renderChoices();
-  if (countSelects === numSelects - 1) {
+  if (countSelects === numSelects) {
     calcRatios();
     renderResults();
   }
@@ -177,7 +203,7 @@ function renderCharts(chartType) {
 }
 
 function init() {
-  if (countSelects === numSelects - 1) {
+  if (countSelects === numSelects) {
     calcRatios();
     renderResults();
     return;
@@ -188,6 +214,4 @@ function init() {
 
   renderChoices();
 }
-
-init();
 
